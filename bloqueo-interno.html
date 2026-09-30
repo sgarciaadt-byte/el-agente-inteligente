@@ -104,6 +104,7 @@
 </footer>
 <script>
   const BASE_URL = 'https://acorn-skimmed-railing.ngrok-free.dev';
+  let combosPermitidos = [];
   const peluqueraSelect = document.getElementById('peluquera');
   const serviciosLista = document.getElementById('serviciosLista');
   const horaInicioInput = document.getElementById('horaInicio');
@@ -175,7 +176,11 @@
         cb.id = id;
         cb.value = s.nombre;
         cb.dataset.duracion = s.duracion_min || 0;
-        cb.addEventListener('change', calcularHoraFin);
+        cb.addEventListener('change', (e) => {
+          if (e.target.checked && !validarSeleccion(e.target)) return;
+          msgBox.className = 'msg';
+          calcularHoraFin();
+        });
         wrap.appendChild(cb);
         wrap.appendChild(document.createTextNode(s.nombre + (s.duracion_min ? ' (' + s.duracion_min + ' min)' : '')));
         serviciosLista.appendChild(wrap);
@@ -186,8 +191,44 @@
     }
   }
 
+  async function cargarCombos() {
+    try {
+      const res = await fetch(BASE_URL + '/webhook/listar-combos', {
+        headers: { 'ngrok-skip-browser-warning': 'true' }
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      combosPermitidos = Array.isArray(data) ? data : (data.combos || []);
+    } catch (err) {
+      combosPermitidos = [];
+      showMsg('No se ha podido cargar la lista de combinaciones permitidas. Por seguridad, de momento no se podrán marcar varios servicios a la vez.', 'err');
+    }
+  }
+
+  function comboPermitido(nombre1, nombre2) {
+    return combosPermitidos.some(c =>
+      (c.servicio_1 === nombre1 && c.servicio_2 === nombre2) ||
+      (c.servicio_1 === nombre2 && c.servicio_2 === nombre1)
+    );
+  }
+
   function serviciosMarcados() {
     return Array.from(serviciosLista.querySelectorAll('input[type="checkbox"]:checked'));
+  }
+
+  function validarSeleccion(cambiado) {
+    const marcados = serviciosMarcados();
+    if (marcados.length <= 1) return true;
+    if (marcados.length === 2) {
+      if (comboPermitido(marcados[0].value, marcados[1].value)) return true;
+      cambiado.checked = false;
+      showMsg('Esa combinación de servicios no está permitida (' + marcados[0].value + ' + ' + marcados[1].value + ').', 'err');
+      return false;
+    }
+    // 3 o más marcados: ningún combo actual tiene más de 2 servicios
+    cambiado.checked = false;
+    showMsg('No se pueden combinar más de dos servicios a la vez con las combinaciones permitidas actuales.', 'err');
+    return false;
   }
 
   function calcularHoraFin() {
@@ -215,6 +256,14 @@
     const marcados = serviciosMarcados();
     if (!marcados.length) {
       showMsg('Selecciona al menos un servicio.', 'err');
+      return;
+    }
+    if (marcados.length === 2 && !comboPermitido(marcados[0].value, marcados[1].value)) {
+      showMsg('Esa combinación de servicios no está permitida.', 'err');
+      return;
+    }
+    if (marcados.length > 2) {
+      showMsg('No se pueden combinar más de dos servicios a la vez.', 'err');
       return;
     }
 
@@ -257,6 +306,7 @@
 
   cargarPeluqueras();
   cargarServicios();
+  cargarCombos();
 </script>
 </body>
 </html>
