@@ -71,7 +71,9 @@
       </select>
 
       <label for="servicio">Servicio</label>
-      <input type="text" id="servicio" placeholder="Ej. Corte y color" required>
+      <select id="servicio" required>
+        <option value="" disabled selected>Cargando…</option>
+      </select>
 
       <label for="fecha">Fecha</label>
       <input type="date" id="fecha" required>
@@ -86,6 +88,7 @@
           <input type="time" id="horaFin" required>
         </div>
       </div>
+      <div class="hint" id="duracionHint"></div>
 
       <button type="submit" id="submitBtn">Bloquear hueco</button>
       <div class="hint">El hueco se reservará en Airtable y en el calendario de Google de la peluquera seleccionada.</div>
@@ -99,6 +102,10 @@
 <script>
   const BASE_URL = 'https://acorn-skimmed-railing.ngrok-free.dev';
   const peluqueraSelect = document.getElementById('peluquera');
+  const servicioSelect = document.getElementById('servicio');
+  const horaInicioInput = document.getElementById('horaInicio');
+  const horaFinInput = document.getElementById('horaFin');
+  const duracionHint = document.getElementById('duracionHint');
   const form = document.getElementById('form');
   const submitBtn = document.getElementById('submitBtn');
   const msgBox = document.getElementById('msg');
@@ -143,6 +150,60 @@
     }
   }
 
+  async function cargarServicios() {
+    try {
+      const res = await fetch(BASE_URL + '/webhook/listar-servicios', {
+        headers: { 'ngrok-skip-browser-warning': 'true' }
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      const lista = Array.isArray(data) ? data : (data.servicios || []);
+      servicioSelect.innerHTML = '';
+      if (!lista.length) {
+        const opt = document.createElement('option');
+        opt.textContent = 'No hay servicios disponibles';
+        opt.disabled = true;
+        opt.selected = true;
+        servicioSelect.appendChild(opt);
+        return;
+      }
+      const placeholder = document.createElement('option');
+      placeholder.value = '';
+      placeholder.textContent = 'Selecciona un servicio';
+      placeholder.disabled = true;
+      placeholder.selected = true;
+      servicioSelect.appendChild(placeholder);
+      lista.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s.nombre;
+        opt.dataset.duracion = s.duracion_min || 0;
+        opt.textContent = s.nombre + (s.duracion_min ? ' (' + s.duracion_min + ' min)' : '');
+        servicioSelect.appendChild(opt);
+      });
+    } catch (err) {
+      servicioSelect.innerHTML = '<option value="" disabled selected>Error al cargar</option>';
+      showMsg('No se ha podido cargar la lista de servicios. Comprueba que n8n y ngrok estén activos.', 'err');
+    }
+  }
+
+  function calcularHoraFin() {
+    const duracion = Number(servicioSelect.selectedOptions[0]?.dataset.duracion || 0);
+    if (!duracion || !horaInicioInput.value) {
+      duracionHint.textContent = '';
+      return;
+    }
+    const [h, m] = horaInicioInput.value.split(':').map(Number);
+    const inicioMin = h * 60 + m;
+    const finMin = inicioMin + duracion;
+    const finH = Math.floor((finMin % 1440) / 60).toString().padStart(2, '0');
+    const finM = (finMin % 60).toString().padStart(2, '0');
+    horaFinInput.value = finH + ':' + finM;
+    duracionHint.textContent = 'Duración: ' + duracion + ' min (hora de fin calculada automáticamente, puedes ajustarla).';
+  }
+
+  servicioSelect.addEventListener('change', calcularHoraFin);
+  horaInicioInput.addEventListener('change', calcularHoraFin);
+
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     msgBox.className = 'msg';
@@ -153,7 +214,7 @@
       pin: document.getElementById('pin').value,
       peluquera_id: peluqueraSelect.value,
       peluquera_nombre: peluqueraSelect.options[peluqueraSelect.selectedIndex]?.textContent || '',
-      servicio_texto: document.getElementById('servicio').value,
+      servicio_texto: servicioSelect.value,
       fecha: document.getElementById('fecha').value,
       hora_inicio: document.getElementById('horaInicio').value,
       hora_fin: document.getElementById('horaFin').value
@@ -169,7 +230,9 @@
       if (data.ok) {
         showMsg(data.mensaje || 'Hueco bloqueado correctamente.', 'ok');
         form.reset();
+        duracionHint.textContent = '';
         cargarPeluqueras();
+        cargarServicios();
       } else {
         showMsg(data.mensaje || 'No se ha podido bloquear el hueco.', 'err');
       }
@@ -182,6 +245,7 @@
   });
 
   cargarPeluqueras();
+  cargarServicios();
 </script>
 </body>
 </html>
