@@ -110,7 +110,9 @@
 
   async function cargarPeluqueras() {
     try {
-      const res = await fetch(BASE_URL + '/webhook/listar-peluqueras');
+      const res = await fetch(BASE_URL + '/webhook/listar-peluqueras', {
+        headers: { 'ngrok-skip-browser-warning': 'true' }
+      });
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const data = await res.json();
       const lista = Array.isArray(data) ? data : (data.peluqueras || []);
@@ -160,7 +162,7 @@
     try {
       const res = await fetch(BASE_URL + '/webhook/bloqueo-interno', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
         body: JSON.stringify(payload)
       });
       const data = await res.json();
