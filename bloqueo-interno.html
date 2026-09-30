@@ -48,6 +48,9 @@
   .msg.ok { display: block; background: var(--ok-bg); color: var(--ok-text); }
   .msg.err { display: block; background: var(--err-bg); color: var(--err-text); }
   .hint { font-size: 12.5px; color: var(--muted); margin-top: 6px; }
+  .checklist { border: 1px solid var(--border); border-radius: 10px; padding: 6px 14px; background: var(--cream); }
+  .checklist label { display: flex; align-items: center; gap: 10px; font-weight: 400; font-size: 15px; color: var(--espresso); margin: 12px 0; }
+  .checklist input[type="checkbox"] { width: auto; accent-color: var(--terracotta); }
   footer { text-align: center; padding: 20px; font-size: 12.5px; color: var(--muted); }
 </style>
 </head>
@@ -70,10 +73,10 @@
         <option value="" disabled selected>Cargando…</option>
       </select>
 
-      <label for="servicio">Servicio</label>
-      <select id="servicio" required>
-        <option value="" disabled selected>Cargando…</option>
-      </select>
+      <label>Servicios (puedes marcar varios)</label>
+      <div class="checklist" id="serviciosLista">
+        <label>Cargando…</label>
+      </div>
 
       <label for="fecha">Fecha</label>
       <input type="date" id="fecha" required>
@@ -102,7 +105,7 @@
 <script>
   const BASE_URL = 'https://acorn-skimmed-railing.ngrok-free.dev';
   const peluqueraSelect = document.getElementById('peluquera');
-  const servicioSelect = document.getElementById('servicio');
+  const serviciosLista = document.getElementById('serviciosLista');
   const horaInicioInput = document.getElementById('horaInicio');
   const horaFinInput = document.getElementById('horaFin');
   const duracionHint = document.getElementById('duracionHint');
@@ -158,36 +161,38 @@
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const data = await res.json();
       const lista = Array.isArray(data) ? data : (data.servicios || []);
-      servicioSelect.innerHTML = '';
+      serviciosLista.innerHTML = '';
       if (!lista.length) {
-        const opt = document.createElement('option');
-        opt.textContent = 'No hay servicios disponibles';
-        opt.disabled = true;
-        opt.selected = true;
-        servicioSelect.appendChild(opt);
+        serviciosLista.innerHTML = '<label>No hay servicios disponibles</label>';
         return;
       }
-      const placeholder = document.createElement('option');
-      placeholder.value = '';
-      placeholder.textContent = 'Selecciona un servicio';
-      placeholder.disabled = true;
-      placeholder.selected = true;
-      servicioSelect.appendChild(placeholder);
-      lista.forEach(s => {
-        const opt = document.createElement('option');
-        opt.value = s.nombre;
-        opt.dataset.duracion = s.duracion_min || 0;
-        opt.textContent = s.nombre + (s.duracion_min ? ' (' + s.duracion_min + ' min)' : '');
-        servicioSelect.appendChild(opt);
+      lista.forEach((s, i) => {
+        const id = 'servicio_' + i;
+        const wrap = document.createElement('label');
+        wrap.setAttribute('for', id);
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.id = id;
+        cb.value = s.nombre;
+        cb.dataset.duracion = s.duracion_min || 0;
+        cb.addEventListener('change', calcularHoraFin);
+        wrap.appendChild(cb);
+        wrap.appendChild(document.createTextNode(s.nombre + (s.duracion_min ? ' (' + s.duracion_min + ' min)' : '')));
+        serviciosLista.appendChild(wrap);
       });
     } catch (err) {
-      servicioSelect.innerHTML = '<option value="" disabled selected>Error al cargar</option>';
+      serviciosLista.innerHTML = '<label>Error al cargar</label>';
       showMsg('No se ha podido cargar la lista de servicios. Comprueba que n8n y ngrok estén activos.', 'err');
     }
   }
 
+  function serviciosMarcados() {
+    return Array.from(serviciosLista.querySelectorAll('input[type="checkbox"]:checked'));
+  }
+
   function calcularHoraFin() {
-    const duracion = Number(servicioSelect.selectedOptions[0]?.dataset.duracion || 0);
+    const marcados = serviciosMarcados();
+    const duracion = marcados.reduce((sum, cb) => sum + Number(cb.dataset.duracion || 0), 0);
     if (!duracion || !horaInicioInput.value) {
       duracionHint.textContent = '';
       return;
@@ -198,15 +203,21 @@
     const finH = Math.floor((finMin % 1440) / 60).toString().padStart(2, '0');
     const finM = (finMin % 60).toString().padStart(2, '0');
     horaFinInput.value = finH + ':' + finM;
-    duracionHint.textContent = 'Duración: ' + duracion + ' min (hora de fin calculada automáticamente, puedes ajustarla).';
+    duracionHint.textContent = 'Duración total: ' + duracion + ' min (hora de fin calculada automáticamente, puedes ajustarla).';
   }
 
-  servicioSelect.addEventListener('change', calcularHoraFin);
   horaInicioInput.addEventListener('change', calcularHoraFin);
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     msgBox.className = 'msg';
+
+    const marcados = serviciosMarcados();
+    if (!marcados.length) {
+      showMsg('Selecciona al menos un servicio.', 'err');
+      return;
+    }
+
     submitBtn.disabled = true;
     submitBtn.textContent = 'Bloqueando…';
 
@@ -214,7 +225,7 @@
       pin: document.getElementById('pin').value,
       peluquera_id: peluqueraSelect.value,
       peluquera_nombre: peluqueraSelect.options[peluqueraSelect.selectedIndex]?.textContent || '',
-      servicio_texto: servicioSelect.value,
+      servicio_texto: marcados.map(cb => cb.value).join(' + '),
       fecha: document.getElementById('fecha').value,
       hora_inicio: document.getElementById('horaInicio').value,
       hora_fin: document.getElementById('horaFin').value
