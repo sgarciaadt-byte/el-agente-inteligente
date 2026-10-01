@@ -93,6 +93,10 @@
       </div>
       <div class="hint" id="duracionHint"></div>
 
+      <label for="telefono">Teléfono de la clienta (opcional)</label>
+      <input type="tel" id="telefono" inputmode="tel" placeholder="Ej: 642590903">
+      <div class="hint">Si lo rellenas, la clienta recibirá el recordatorio por WhatsApp 24h antes, igual que las citas por WhatsApp o voz.</div>
+
       <button type="submit" id="submitBtn">Bloquear hueco</button>
       <div class="hint">El hueco se reservará en Airtable y en el calendario de Google de la peluquera seleccionada.</div>
       <div class="msg" id="msg"></div>
@@ -278,7 +282,8 @@
       servicios: marcados.map(cb => cb.value),
       fecha: document.getElementById('fecha').value,
       hora_inicio: document.getElementById('horaInicio').value,
-      hora_fin: document.getElementById('horaFin').value
+      hora_fin: document.getElementById('horaFin').value,
+      telefono: document.getElementById('telefono').value.trim()
     };
 
     try {
