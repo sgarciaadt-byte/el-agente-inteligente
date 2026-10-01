@@ -275,6 +275,7 @@
       peluquera_id: peluqueraSelect.value,
       peluquera_nombre: peluqueraSelect.options[peluqueraSelect.selectedIndex]?.textContent || '',
       servicio_texto: marcados.map(cb => cb.value).join(' + '),
+      servicios: marcados.map(cb => cb.value),
       fecha: document.getElementById('fecha').value,
       hora_inicio: document.getElementById('horaInicio').value,
       hora_fin: document.getElementById('horaFin').value
