@@ -56,6 +56,14 @@
   .hora-btn { width: auto; margin: 0; padding: 9px 13px; font-size: 14px; font-weight: 500; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--espresso); cursor: pointer; }
   .hora-btn.selected { background: var(--terracotta); border-color: var(--terracotta); color: #fff; }
   .hora-btn:disabled { opacity: .5; cursor: default; }
+  .card + .card { margin-top: 20px; }
+  .cita-item { border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-top: 10px; }
+  .cita-item .cita-info { font-size: 14.5px; margin-bottom: 10px; }
+  .cita-item .cita-info strong { display: block; font-size: 15.5px; margin-bottom: 2px; }
+  .cita-acciones { display: flex; gap: 8px; }
+  .cita-acciones button { width: auto; margin: 0; padding: 9px 14px; font-size: 13.5px; }
+  .btn-cancelar { background: var(--err-text) !important; }
+  .btn-modificar { background: var(--espresso-soft) !important; }
   footer { text-align: center; padding: 20px; font-size: 12.5px; color: var(--muted); }
 </style>
 </head>
@@ -65,6 +73,19 @@
   <div class="sub">Bloqueo interno de huecos · Uso exclusivo del personal</div>
 </header>
 <main>
+  <div class="card">
+    <h1>Cancelar o modificar una cita</h1>
+    <p class="desc">Busca las citas de una clienta por su teléfono.</p>
+    <form id="formBuscar">
+      <label for="pinBuscar">PIN</label>
+      <input type="password" id="pinBuscar" inputmode="numeric" autocomplete="off" required>
+      <label for="telefonoBuscar">Teléfono de la clienta</label>
+      <input type="tel" id="telefonoBuscar" inputmode="tel" placeholder="Ej: 642590903" required>
+      <button type="submit" id="buscarBtn">Buscar citas</button>
+      <div class="msg" id="msgBuscar"></div>
+    </form>
+    <div id="resultadosCitas"></div>
+  </div>
   <div class="card">
     <h1>Bloquear un hueco</h1>
     <p class="desc">Usa esto para reservar en el sistema una cita presencial o telefónica y evitar que Cristina la ofrezca por error.</p>
@@ -388,6 +409,128 @@
     } finally {
       submitBtn.disabled = false;
       submitBtn.textContent = 'Bloquear hueco';
+    }
+  });
+
+  const formBuscar = document.getElementById('formBuscar');
+  const buscarBtn = document.getElementById('buscarBtn');
+  const msgBuscar = document.getElementById('msgBuscar');
+  const resultadosCitas = document.getElementById('resultadosCitas');
+
+  function showMsgBuscar(text, type) {
+    msgBuscar.textContent = text;
+    msgBuscar.className = 'msg ' + type;
+  }
+
+  function formatearFechaHora(iso) {
+    const dt = new Date(iso);
+    if (isNaN(dt)) return iso;
+    const fecha = dt.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+    const hora = dt.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+    return fecha + ' a las ' + hora;
+  }
+
+  function renderCitas(citas, pin) {
+    resultadosCitas.innerHTML = '';
+    if (!citas.length) {
+      resultadosCitas.innerHTML = '<p class="hint">No se han encontrado citas activas con ese teléfono.</p>';
+      return;
+    }
+    citas.forEach(cita => {
+      const item = document.createElement('div');
+      item.className = 'cita-item';
+
+      const info = document.createElement('div');
+      info.className = 'cita-info';
+      const strong = document.createElement('strong');
+      strong.textContent = cita.servicio + ' · ' + cita.peluquera_nombre;
+      info.appendChild(strong);
+      info.appendChild(document.createTextNode(formatearFechaHora(cita.fecha_hora_inicio)));
+      item.appendChild(info);
+
+      const acciones = document.createElement('div');
+      acciones.className = 'cita-acciones';
+
+      const btnCancelar = document.createElement('button');
+      btnCancelar.type = 'button';
+      btnCancelar.className = 'btn-cancelar';
+      btnCancelar.textContent = 'Cancelar';
+      btnCancelar.addEventListener('click', () => cancelarCita(cita, pin, item, false));
+
+      const btnModificar = document.createElement('button');
+      btnModificar.type = 'button';
+      btnModificar.className = 'btn-modificar';
+      btnModificar.textContent = 'Modificar (cambiar día/hora)';
+      btnModificar.addEventListener('click', () => cancelarCita(cita, pin, item, true));
+
+      acciones.appendChild(btnCancelar);
+      acciones.appendChild(btnModificar);
+      item.appendChild(acciones);
+
+      resultadosCitas.appendChild(item);
+    });
+  }
+
+  async function cancelarCita(cita, pin, itemEl, esModificacion) {
+    const confirmado = window.confirm(
+      esModificacion
+        ? 'Se cancelará la cita actual (' + cita.servicio + ', ' + formatearFechaHora(cita.fecha_hora_inicio) + ') para que elijas un nuevo día/hora debajo. ¿Continuar?'
+        : '¿Seguro que quieres cancelar esta cita (' + cita.servicio + ', ' + formatearFechaHora(cita.fecha_hora_inicio) + ')?'
+    );
+    if (!confirmado) return;
+
+    try {
+      const res = await fetch(BASE_URL + '/webhook/cancelar-cita-interna', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
+        body: JSON.stringify({ pin: pin, cita_id: cita.id })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        itemEl.remove();
+        if (esModificacion) {
+          showMsgBuscar('Cita cancelada. Elige abajo el nuevo día y hora para crear la nueva cita.', 'ok');
+          document.getElementById('telefono').value = document.getElementById('telefonoBuscar').value.trim();
+          document.querySelector('#form').scrollIntoView({ behavior: 'smooth' });
+        } else {
+          showMsgBuscar('Cita cancelada correctamente.', 'ok');
+        }
+      } else {
+        showMsgBuscar(data.mensaje || 'No se ha podido cancelar la cita.', 'err');
+      }
+    } catch (err) {
+      showMsgBuscar('Error de conexión. Comprueba que n8n y ngrok estén activos.', 'err');
+    }
+  }
+
+  formBuscar.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    msgBuscar.className = 'msg';
+    resultadosCitas.innerHTML = '';
+
+    const pin = document.getElementById('pinBuscar').value;
+    const telefono = document.getElementById('telefonoBuscar').value.trim();
+
+    buscarBtn.disabled = true;
+    buscarBtn.textContent = 'Buscando…';
+
+    try {
+      const res = await fetch(BASE_URL + '/webhook/buscar-cita-telefono', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
+        body: JSON.stringify({ pin: pin, telefono: telefono })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        renderCitas(data.citas || [], pin);
+      } else {
+        showMsgBuscar(data.mensaje || 'No se ha podido buscar.', 'err');
+      }
+    } catch (err) {
+      showMsgBuscar('Error de conexión. Comprueba que n8n y ngrok estén activos.', 'err');
+    } finally {
+      buscarBtn.disabled = false;
+      buscarBtn.textContent = 'Buscar citas';
     }
   });
 
