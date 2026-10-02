@@ -51,6 +51,11 @@
   .checklist { border: 1px solid var(--border); border-radius: 10px; padding: 6px 14px; background: var(--cream); }
   .checklist label { display: flex; align-items: center; gap: 10px; font-weight: 400; font-size: 15px; color: var(--espresso); margin: 12px 0; }
   .checklist input[type="checkbox"] { width: auto; accent-color: var(--terracotta); }
+  .horarios { display: flex; flex-wrap: wrap; gap: 8px; border: 1px solid var(--border); border-radius: 10px; padding: 12px; background: var(--cream); min-height: 48px; align-items: center; }
+  .horarios .vacio { font-size: 13.5px; color: var(--muted); }
+  .hora-btn { width: auto; margin: 0; padding: 9px 13px; font-size: 14px; font-weight: 500; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--espresso); cursor: pointer; }
+  .hora-btn.selected { background: var(--terracotta); border-color: var(--terracotta); color: #fff; }
+  .hora-btn:disabled { opacity: .5; cursor: default; }
   footer { text-align: center; padding: 20px; font-size: 12.5px; color: var(--muted); }
 </style>
 </head>
@@ -81,14 +86,16 @@
       <label for="fecha">Fecha</label>
       <input type="date" id="fecha" required>
 
+      <label>Hora disponible</label>
+      <div class="horarios" id="horariosLista">
+        <span class="vacio">Selecciona peluquera, servicio(s) y fecha para ver las horas libres.</span>
+      </div>
+      <input type="hidden" id="horaInicio" required>
+
       <div class="row">
         <div>
-          <label for="horaInicio">Hora inicio</label>
-          <input type="time" id="horaInicio" required>
-        </div>
-        <div>
           <label for="horaFin">Hora fin</label>
-          <input type="time" id="horaFin" required>
+          <input type="time" id="horaFin" readonly>
         </div>
       </div>
       <div class="hint" id="duracionHint"></div>
@@ -146,6 +153,10 @@
       placeholder.disabled = true;
       placeholder.selected = true;
       peluqueraSelect.appendChild(placeholder);
+      const cualquiera = document.createElement('option');
+      cualquiera.value = 'cualquiera';
+      cualquiera.textContent = 'Cualquiera';
+      peluqueraSelect.appendChild(cualquiera);
       lista.forEach(p => {
         const opt = document.createElement('option');
         opt.value = p.id || p.Nombre || p.nombre;
@@ -183,7 +194,7 @@
         cb.addEventListener('change', (e) => {
           if (e.target.checked && !validarSeleccion(e.target)) return;
           msgBox.className = 'msg';
-          calcularHoraFin();
+          cargarHuecos();
         });
         wrap.appendChild(cb);
         wrap.appendChild(document.createTextNode(s.nombre + (s.duracion_min ? ' (' + s.duracion_min + ' min)' : '')));
@@ -239,6 +250,7 @@
     const marcados = serviciosMarcados();
     const duracion = marcados.reduce((sum, cb) => sum + Number(cb.dataset.duracion || 0), 0);
     if (!duracion || !horaInicioInput.value) {
+      horaFinInput.value = '';
       duracionHint.textContent = '';
       return;
     }
@@ -248,10 +260,69 @@
     const finH = Math.floor((finMin % 1440) / 60).toString().padStart(2, '0');
     const finM = (finMin % 60).toString().padStart(2, '0');
     horaFinInput.value = finH + ':' + finM;
-    duracionHint.textContent = 'Duración total: ' + duracion + ' min (hora de fin calculada automáticamente, puedes ajustarla).';
+    duracionHint.textContent = 'Duración total: ' + duracion + ' min.';
   }
 
-  horaInicioInput.addEventListener('change', calcularHoraFin);
+  const horariosLista = document.getElementById('horariosLista');
+  const fechaInput = document.getElementById('fecha');
+  let huecosRequestId = 0;
+
+  async function cargarHuecos() {
+    const marcados = serviciosMarcados();
+    const peluqueraId = peluqueraSelect.value;
+    const fecha = fechaInput.value;
+
+    horaInicioInput.value = '';
+    horaFinInput.value = '';
+
+    if (!marcados.length || !peluqueraId || !fecha) {
+      horariosLista.innerHTML = '<span class="vacio">Selecciona peluquera, servicio(s) y fecha para ver las horas libres.</span>';
+      return;
+    }
+
+    const miRequestId = ++huecosRequestId;
+    horariosLista.innerHTML = '<span class="vacio">Buscando horas libres…</span>';
+
+    try {
+      const res = await fetch(BASE_URL + '/webhook/listar-huecos-disponibles', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
+        body: JSON.stringify({
+          peluquera_id: peluqueraId,
+          servicios: marcados.map(cb => cb.value),
+          fecha: fecha
+        })
+      });
+      if (miRequestId !== huecosRequestId) return; // respuesta obsoleta, ya se lanzó otra búsqueda
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      const huecos = data.huecos || [];
+      horariosLista.innerHTML = '';
+      if (!huecos.length) {
+        horariosLista.innerHTML = '<span class="vacio">No quedan huecos libres ese día con esa selección.</span>';
+        return;
+      }
+      huecos.forEach(hora => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'hora-btn';
+        btn.textContent = hora;
+        btn.addEventListener('click', () => {
+          horariosLista.querySelectorAll('.hora-btn').forEach(b => b.classList.remove('selected'));
+          btn.classList.add('selected');
+          horaInicioInput.value = hora;
+          calcularHoraFin();
+        });
+        horariosLista.appendChild(btn);
+      });
+    } catch (err) {
+      if (miRequestId !== huecosRequestId) return;
+      horariosLista.innerHTML = '<span class="vacio">Error al buscar horas libres. Comprueba que n8n y ngrok estén activos.</span>';
+    }
+  }
+
+  peluqueraSelect.addEventListener('change', cargarHuecos);
+  fechaInput.addEventListener('change', cargarHuecos);
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -268,6 +339,10 @@
     }
     if (marcados.length > 2) {
       showMsg('No se pueden combinar más de dos servicios a la vez.', 'err');
+      return;
+    }
+    if (!horaInicioInput.value) {
+      showMsg('Selecciona una hora de la lista de horas disponibles.', 'err');
       return;
     }
 
@@ -297,6 +372,7 @@
         showMsg(data.mensaje || 'Hueco bloqueado correctamente.', 'ok');
         form.reset();
         duracionHint.textContent = '';
+        horariosLista.innerHTML = '<span class="vacio">Selecciona peluquera, servicio(s) y fecha para ver las horas libres.</span>';
         cargarPeluqueras();
         cargarServicios();
       } else {
