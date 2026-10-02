@@ -266,6 +266,7 @@
   const horariosLista = document.getElementById('horariosLista');
   const fechaInput = document.getElementById('fecha');
   let huecosRequestId = 0;
+  let peluqueraResuelta = null;
 
   async function cargarHuecos() {
     const marcados = serviciosMarcados();
@@ -274,6 +275,7 @@
 
     horaInicioInput.value = '';
     horaFinInput.value = '';
+    peluqueraResuelta = null;
 
     if (!marcados.length || !peluqueraId || !fecha) {
       horariosLista.innerHTML = '<span class="vacio">Selecciona peluquera, servicio(s) y fecha para ver las horas libres.</span>';
@@ -302,15 +304,17 @@
         horariosLista.innerHTML = '<span class="vacio">No quedan huecos libres ese día con esa selección.</span>';
         return;
       }
-      huecos.forEach(hora => {
+      const esCualquiera = peluqueraId === 'cualquiera';
+      huecos.forEach(hueco => {
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'hora-btn';
-        btn.textContent = hora;
+        btn.textContent = esCualquiera ? (hueco.hora + ' · ' + hueco.peluquera_nombre) : hueco.hora;
         btn.addEventListener('click', () => {
           horariosLista.querySelectorAll('.hora-btn').forEach(b => b.classList.remove('selected'));
           btn.classList.add('selected');
-          horaInicioInput.value = hora;
+          horaInicioInput.value = hueco.hora;
+          peluqueraResuelta = { id: hueco.peluquera_id, nombre: hueco.peluquera_nombre };
           calcularHoraFin();
         });
         horariosLista.appendChild(btn);
@@ -351,8 +355,8 @@
 
     const payload = {
       pin: document.getElementById('pin').value,
-      peluquera_id: peluqueraSelect.value,
-      peluquera_nombre: peluqueraSelect.options[peluqueraSelect.selectedIndex]?.textContent || '',
+      peluquera_id: peluqueraResuelta ? peluqueraResuelta.id : peluqueraSelect.value,
+      peluquera_nombre: peluqueraResuelta ? peluqueraResuelta.nombre : (peluqueraSelect.options[peluqueraSelect.selectedIndex]?.textContent || ''),
       servicio_texto: marcados.map(cb => cb.value).join(' + '),
       servicios: marcados.map(cb => cb.value),
       fecha: document.getElementById('fecha').value,
@@ -372,6 +376,7 @@
         showMsg(data.mensaje || 'Hueco bloqueado correctamente.', 'ok');
         form.reset();
         duracionHint.textContent = '';
+        peluqueraResuelta = null;
         horariosLista.innerHTML = '<span class="vacio">Selecciona peluquera, servicio(s) y fecha para ver las horas libres.</span>';
         cargarPeluqueras();
         cargarServicios();
