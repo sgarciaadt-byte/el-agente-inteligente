@@ -132,10 +132,10 @@
   </div>
 </main>
 <footer>
-  Prototipo interno · si ngrok se ha reiniciado hoy, esta página puede necesitar actualizarse con la nueva URL.
+  Herramienta interna del salón.
 </footer>
 <script>
-  const BASE_URL = 'https://acorn-skimmed-railing.ngrok-free.dev';
+  const BASE_URL = 'https://n8n.elagenteinteligente.com';
   let combosPermitidos = [];
   const peluqueraSelect = document.getElementById('peluquera');
   const serviciosLista = document.getElementById('serviciosLista');
@@ -154,7 +154,7 @@
   async function cargarPeluqueras() {
     try {
       const res = await fetch(BASE_URL + '/webhook/listar-peluqueras', {
-        headers: { 'ngrok-skip-browser-warning': 'true' }
+        headers: {}
       });
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const data = await res.json();
@@ -186,14 +186,14 @@
       });
     } catch (err) {
       peluqueraSelect.innerHTML = '<option value="" disabled selected>Error al cargar</option>';
-      showMsg('No se ha podido cargar la lista de peluqueras. Comprueba que n8n y ngrok estén activos.', 'err');
+      showMsg('No se ha podido cargar la lista de peluqueras. Comprueba tu conexión a internet y vuelve a intentarlo. Si sigue fallando, avisa al soporte.', 'err');
     }
   }
 
   async function cargarServicios() {
     try {
       const res = await fetch(BASE_URL + '/webhook/listar-servicios', {
-        headers: { 'ngrok-skip-browser-warning': 'true' }
+        headers: {}
       });
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const data = await res.json();
@@ -223,14 +223,14 @@
       });
     } catch (err) {
       serviciosLista.innerHTML = '<label>Error al cargar</label>';
-      showMsg('No se ha podido cargar la lista de servicios. Comprueba que n8n y ngrok estén activos.', 'err');
+      showMsg('No se ha podido cargar la lista de servicios. Comprueba tu conexión a internet y vuelve a intentarlo. Si sigue fallando, avisa al soporte.', 'err');
     }
   }
 
   async function cargarCombos() {
     try {
       const res = await fetch(BASE_URL + '/webhook/listar-combos', {
-        headers: { 'ngrok-skip-browser-warning': 'true' }
+        headers: {}
       });
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const data = await res.json();
@@ -309,7 +309,7 @@
     try {
       const res = await fetch(BASE_URL + '/webhook/listar-huecos-disponibles', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           peluquera_id: peluqueraId,
           servicios: marcados.map(cb => cb.value),
@@ -342,7 +342,7 @@
       });
     } catch (err) {
       if (miRequestId !== huecosRequestId) return;
-      horariosLista.innerHTML = '<span class="vacio">Error al buscar horas libres. Comprueba que n8n y ngrok estén activos.</span>';
+      horariosLista.innerHTML = '<span class="vacio">Error al buscar horas libres. Comprueba tu conexión a internet y vuelve a intentarlo. Si sigue fallando, avisa al soporte.</span>';
     }
   }
 
@@ -389,7 +389,7 @@
     try {
       const res = await fetch(BASE_URL + '/webhook/bloqueo-interno', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
       const data = await res.json();
@@ -405,7 +405,7 @@
         showMsg(data.mensaje || 'No se ha podido bloquear el hueco.', 'err');
       }
     } catch (err) {
-      showMsg('Error de conexión. Comprueba que n8n y ngrok estén activos.', 'err');
+      showMsg('Error de conexión. Comprueba tu conexión a internet y vuelve a intentarlo. Si sigue fallando, avisa al soporte.', 'err');
     } finally {
       submitBtn.disabled = false;
       submitBtn.textContent = 'Bloquear hueco';
@@ -482,7 +482,7 @@
     try {
       const res = await fetch(BASE_URL + '/webhook/cancelar-cita-interna', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ pin: pin, cita_id: cita.id })
       });
       const data = await res.json();
@@ -499,7 +499,7 @@
         showMsgBuscar(data.mensaje || 'No se ha podido cancelar la cita.', 'err');
       }
     } catch (err) {
-      showMsgBuscar('Error de conexión. Comprueba que n8n y ngrok estén activos.', 'err');
+      showMsgBuscar('Error de conexión. Comprueba tu conexión a internet y vuelve a intentarlo. Si sigue fallando, avisa al soporte.', 'err');
     }
   }
 
@@ -517,7 +517,7 @@
     try {
       const res = await fetch(BASE_URL + '/webhook/buscar-cita-telefono', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ pin: pin, telefono: telefono })
       });
       const data = await res.json();
@@ -527,7 +527,7 @@
         showMsgBuscar(data.mensaje || 'No se ha podido buscar.', 'err');
       }
     } catch (err) {
-      showMsgBuscar('Error de conexión. Comprueba que n8n y ngrok estén activos.', 'err');
+      showMsgBuscar('Error de conexión. Comprueba tu conexión a internet y vuelve a intentarlo. Si sigue fallando, avisa al soporte.', 'err');
     } finally {
       buscarBtn.disabled = false;
       buscarBtn.textContent = 'Buscar citas';
