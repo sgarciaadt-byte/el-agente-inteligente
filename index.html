@@ -16,6 +16,7 @@
 :root{--p:#6d3363;--pd:#2a2231;--bg:#faf7f2;--ink:#1f1a22;--mut:#6c6470;--line:#e7e0e4;--acc:#e8c8de;--card:#fff}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
+section[id]{scroll-margin-top:72px}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
 h1,h2,h3{font-family:Lora,Georgia,serif;font-weight:600;line-height:1.15;margin:0}
 a{color:inherit}
@@ -119,6 +120,15 @@ section.sec{padding:88px 0}
 .contacto .btn{background:#fff;color:var(--p);width:100%}
 .contacto .mail{display:block;text-align:center;margin-top:14px;color:#fff;font-size:15px;word-break:break-all}
 
+/* vídeo */
+.vid{padding:72px 0 0}
+.vid .in{display:grid;grid-template-columns:.8fr 1.2fr;gap:44px;align-items:center}
+@media(max-width:900px){.vid .in{grid-template-columns:1fr;gap:24px}.vid{padding-top:56px}}
+.vid h2{font-size:clamp(28px,4vw,40px);margin:12px 0 12px}
+.vid p{color:var(--mut);font-size:18px;margin:0 0 22px}
+.marco{background:var(--pd);border-radius:18px;padding:8px;box-shadow:0 24px 60px rgba(42,34,49,.28)}
+.marco video{display:block;width:100%;height:auto;aspect-ratio:16/9;border-radius:12px;background:#000}
+
 footer{background:#211a26;color:#a99aa6;font-size:14px;padding:28px 0}
 footer .in{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
 footer a{color:#d9c9d5}
@@ -130,6 +140,7 @@ footer a{color:#d9c9d5}
   <div class="in nav">
     <a class="logo" href="#inicio">EL AGENTE INTELIGENTE</a>
     <nav>
+      <a href="#video">Vídeo</a>
       <a href="#que-hace">Qué hace</a>
       <a href="#un-dia">Un día con Cristina</a>
       <a href="#como-empezamos">Cómo empezamos</a>
@@ -159,6 +170,24 @@ footer a{color:#d9c9d5}
         <div class="b o">¡Hecho! Sábado a las 10:00, corte y color con Ana. El día antes te mando un recordatorio. ¡Hasta el sábado! ✨<span class="h">23:42</span></div>
       </div>
       <div class="ej">Conversación de ejemplo</div>
+    </div>
+  </div>
+</section>
+
+<!-- VÍDEO -->
+<section class="vid" id="video">
+  <div class="in">
+    <div>
+      <div class="tag k">Vídeo · 36 segundos</div>
+      <h2>Mira a Cristina trabajando</h2>
+      <p>Una clienta pide cita por WhatsApp y Cristina se la da en tu calendario. Sin que nadie del salón tenga que soltar lo que está haciendo.</p>
+      <a class="btn btn-p" href="#contacto">Quiero verla en mi salón</a>
+    </div>
+    <div class="marco">
+      <video controls playsinline preload="metadata" poster="video/portada.jpg" aria-label="Vídeo de 36 segundos: Cristina dando una cita por WhatsApp">
+        <source src="video/demo-cristina.mp4" type="video/mp4">
+        Tu navegador no puede reproducir el vídeo. <a href="video/demo-cristina.mp4">Descárgalo aquí</a>.
+      </video>
     </div>
   </div>
 </section>
