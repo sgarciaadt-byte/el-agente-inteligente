@@ -5,75 +5,100 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Política de privacidad — El Agente Inteligente</title>
 <meta name="description" content="Política de privacidad de El Agente Inteligente: qué datos procesamos, con qué finalidad y cómo los protegemos.">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32.png">
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+<meta name="theme-color" content="#6d3363">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:wght@500;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --cream: #fbf3ec; --espresso: #2c1e1a; --espresso-soft: #3d2a24;
-    --terracotta: #e2734f; --muted: #7a685f;
-  }
-  * { box-sizing: border-box; }
-  body { margin: 0; font-family: 'Inter', sans-serif; background: var(--cream); color: var(--espresso); line-height: 1.65; }
-  header { background: var(--espresso); color: var(--cream); padding: 24px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
-  header .brand { font-family: 'Fraunces', serif; font-weight: 700; font-size: 22px; }
-  header nav a { color: var(--cream); text-decoration: none; margin-left: 24px; font-size: 15px; }
-  header nav a:hover { color: var(--terracotta); }
-  main { max-width: 720px; margin: 0 auto; padding: 60px 20px 40px; }
-  h1 { font-family: 'Fraunces', serif; font-size: 32px; margin: 0 0 8px; }
-  .updated { color: var(--muted); font-size: 14px; margin-bottom: 40px; }
-  h2 { font-family: 'Fraunces', serif; font-size: 21px; margin: 40px 0 12px; color: var(--espresso-soft); }
-  p, li { font-size: 15.5px; color: var(--espresso-soft); }
-  ul { padding-left: 20px; }
-  li { margin-bottom: 8px; }
-  a { color: var(--terracotta); }
-  footer { background: var(--espresso); color: var(--cream); text-align: center; padding: 32px 20px; margin-top: 40px; font-size: 14px; }
-  footer a { color: var(--terracotta); text-decoration: none; }
+:root{--p:#6d3363;--pd:#2a2231;--bg:#faf7f2;--ink:#1f1a22;--mut:#6c6470;--line:#e7e0e4}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 Inter,system-ui,sans-serif}
+header{background:rgba(250,247,242,.95);border-bottom:1px solid var(--line)}
+.nav{max-width:1120px;margin:0 auto;padding:0 20px;height:64px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;font-size:12px;letter-spacing:.28em;font-weight:600;color:var(--p);white-space:nowrap}
+.logo img{width:34px;height:34px}
+.nav nav a{color:var(--mut);text-decoration:none;font-size:14px;margin-left:18px}
+.nav nav a:hover{color:var(--ink)}
+@media(max-width:560px){.nav nav a.x{display:none}.logo span{display:none}}
+main{max-width:760px;margin:0 auto;padding:56px 20px 40px}
+h1{font-family:Lora,Georgia,serif;font-weight:600;font-size:34px;margin:0 0 6px;line-height:1.15}
+.updated{color:var(--mut);font-size:14px;margin:0 0 36px}
+h2{font-family:Lora,Georgia,serif;font-weight:600;font-size:22px;margin:36px 0 10px;color:var(--p)}
+p,li{font-size:15.5px;color:#3e3742}
+ul{padding-left:20px} li{margin-bottom:8px}
+a{color:var(--p)}
+table{border-collapse:collapse;width:100%;font-size:14.5px;margin:10px 0}
+th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{background:#f3eef0}
+.pend{background:#fff3b0;padding:0 4px;border-radius:4px}
+footer{background:#211a26;color:#a99aa6;font-size:14px;padding:28px 20px;margin-top:40px}
+footer .in{max-width:1120px;margin:0 auto;display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
+footer a{color:#d9c9d5;margin-left:14px}
 </style>
 </head>
 <body>
-<header>
-  <div class="brand">El Agente Inteligente</div>
-  <nav><a href="index.html">Inicio</a><a href="privacidad.html">Privacidad</a></nav>
-</header>
+<header><div class="nav">
+  <a class="logo" href="index.html"><img src="img/icono-512.png" alt="Logotipo de Cristina"><span>EL AGENTE INTELIGENTE</span></a>
+  <nav><a href="index.html">Inicio</a><a class="x" href="privacidad.html">Privacidad</a><a class="x" href="cookies.html">Cookies</a></nav>
+</div></header>
 <main>
-  <h1>Política de privacidad</h1>
-  <p class="updated">Última actualización: 30 de septiembre de 2026</p>
 
-  <p>Esta política explica qué datos personales procesa <strong>El Agente Inteligente</strong> cuando presta su servicio de recepcionista automatizado (por teléfono y WhatsApp) en nombre de los negocios que lo utilizan, y cómo los protegemos.</p>
+<h1>Política de privacidad</h1>
+<p class="updated">Última actualización: 17 de noviembre de 2026</p>
 
-  <h2>Quién es el responsable</h2>
-  <p>El servicio es operado por Sergi (autónomo/en constitución), como proveedor tecnológico que actúa por encargo de cada negocio cliente (por ejemplo, una peluquería). El negocio cliente es responsable del tratamiento de los datos de sus propias clientas; El Agente Inteligente actúa como encargado del tratamiento, siguiendo sus instrucciones.</p>
+<p>Esta política explica qué datos personales trata <strong>El Agente Inteligente</strong> cuando presta su servicio de recepcionista virtual (por WhatsApp, por teléfono y, si el negocio la tiene, mediante la reserva online de su web) en nombre de los negocios que lo utilizan, y qué datos trata cuando le escribes desde esta web.</p>
 
-  <h2>Qué datos tratamos</h2>
-  <ul>
-    <li><strong>Número de teléfono</strong> de la persona que llama o escribe por WhatsApp.</li>
-    <li><strong>Nombre</strong>, cuando la clienta lo facilita durante la conversación.</li>
-    <li><strong>Contenido de la conversación</strong>: el texto de los mensajes de WhatsApp y la transcripción de las llamadas de voz, en la medida necesaria para entender la petición (reservar, modificar o cancelar una cita, o preguntar información del negocio).</li>
-    <li><strong>Datos de la cita</strong>: servicio solicitado, día y hora, y cualquier nota asociada (por ejemplo, un recado dejado cuando el negocio está cerrado).</li>
-  </ul>
+<h2>Quién es el responsable</h2>
+<p>Cuando Cristina atiende a las clientas de un negocio (por ejemplo, una peluquería), <strong>el responsable de los datos es ese negocio</strong>. El Agente Inteligente los trata por encargo suyo y siguiendo sus instrucciones, con un contrato de encargo del tratamiento firmado antes de empezar. El Agente Inteligente es una actividad de Sergi (datos completos en el <a href="aviso-legal.html">aviso legal</a>).</p>
+<p>Cuando escribes a El Agente Inteligente desde esta web, el responsable es El Agente Inteligente.</p>
 
-  <h2>Con qué finalidad</h2>
-  <p>Estos datos se usan exclusivamente para gestionar la reserva, modificación o cancelación de citas, responder preguntas sobre el negocio (horario, precios, ubicación) y, cuando corresponda, transferir la llamada o dejar un recado a una persona del negocio.</p>
+<h2>Cuándo se informa</h2>
+<ul>
+  <li><strong>Por teléfono:</strong> al principio de la llamada, Cristina explica quién trata los datos, cuáles, para qué y dónde consultar el resto. Se puede saltar pulsando la tecla 9.</li>
+  <li><strong>Por WhatsApp:</strong> la primera vez que un número escribe al negocio, recibe un resumen con un enlace a la política de privacidad.</li>
+</ul>
 
-  <h2>Con quién se comparten</h2>
-  <ul>
-    <li><strong>El negocio cliente</strong>, que recibe la información de las citas para poder atender a sus clientas.</li>
-    <li><strong>Proveedores tecnológicos</strong> que hacen posible el servicio, actuando como encargados del tratamiento: Twilio (telefonía y WhatsApp), ElevenLabs (voz conversacional), Anthropic (procesamiento del lenguaje), Airtable (almacenamiento de citas) y Google Calendar (calendario del negocio).</li>
-  </ul>
-  <p>No vendemos ni cedemos estos datos a terceros con fines publicitarios.</p>
+<h2>Qué datos se tratan</h2>
+<ul>
+  <li><strong>Número de teléfono</strong> de la persona que llama, escribe por WhatsApp o reserva en la web del negocio.</li>
+  <li><strong>Nombre y apellido</strong>, cuando la clienta los da por WhatsApp o en el formulario de reserva.</li>
+  <li><strong>Mensajes de WhatsApp</strong>, incluidas las fotos, audios o archivos que la clienta envíe, en la medida necesaria para entender la petición (reservar, cambiar o anular una cita, o preguntar información del negocio).</li>
+  <li><strong>Datos de la llamada:</strong> número, fecha, hora y la opción elegida en el menú. <strong>Las llamadas no se graban ni se transcriben.</strong></li>
+  <li><strong>Datos de la cita:</strong> servicio, profesional, día, hora y las notas que haga falta apuntar.</li>
+</ul>
 
-  <h2>Cuánto tiempo se conservan</h2>
-  <p>Los datos de la conversación y de la cita se conservan durante el tiempo necesario para prestar el servicio y cumplir obligaciones legales o contractuales con el negocio cliente, y se eliminan o anonimizan cuando dejan de ser necesarios.</p>
+<h2>Para qué</h2>
+<p>Solo para gestionar las citas (reservar, cambiar y anular), enviar los recordatorios, responder preguntas sobre el negocio (horario, precios, dirección) y, si la persona lo pide, pasar la llamada al móvil del negocio. Si quien llama elige pedir cita, se le envía un único WhatsApp del negocio para que pueda reservar. <strong>No se envían mensajes publicitarios.</strong></p>
 
-  <h2>Tus derechos</h2>
-  <p>Puedes ejercer tus derechos de acceso, rectificación, supresión, oposición, limitación y portabilidad dirigiéndote directamente al negocio donde reservaste la cita, o escribiendo a <a href="mailto:elagenteinteligente@gmail.com">elagenteinteligente@gmail.com</a>. También puedes presentar una reclamación ante la Agencia Española de Protección de Datos (<a href="https://www.aepd.es" target="_blank" rel="noopener">www.aepd.es</a>).</p>
+<h2>Con quién se comparten</h2>
+<ul>
+  <li><strong>El negocio</strong>, que recibe la información de las citas para atender a sus clientas.</li>
+  <li><strong>Proveedores tecnológicos</strong> que hacen posible el servicio, como subencargados del tratamiento: Meta (WhatsApp Business), Twilio (telefonía y, mientras dure la transición, mensajes de WhatsApp), Anthropic (comprensión de los mensajes), Airtable (almacenamiento de citas y fichas), Google Calendar (calendario del negocio), Hetzner (servidor en la Unión Europea donde funciona el sistema) y Cloudflare (alojamiento de las webs de los negocios con reserva online).</li>
+</ul>
+<p>Algunos de estos proveedores pueden tratar datos fuera del Espacio Económico Europeo (por ejemplo, en Estados Unidos). En ese caso, lo hacen con las garantías que exige la normativa, como el Marco de Privacidad de Datos UE-EE. UU. o las cláusulas contractuales tipo de la Comisión Europea.</p>
+<p>No vendemos ni cedemos estos datos a terceros con fines publicitarios.</p>
 
-  <h2>Contacto</h2>
-  <p>Para cualquier duda sobre esta política, puedes escribirnos a <a href="mailto:elagenteinteligente@gmail.com">elagenteinteligente@gmail.com</a>.</p>
+<h2>Cuánto tiempo se guardan</h2>
+<ul>
+  <li><strong>Citas pasadas:</strong> 12 meses; después se borran.</li>
+  <li><strong>Fotos que envía la clienta:</strong> se borran del sistema cuando se ha hecho la cita.</li>
+  <li><strong>Registros técnicos del sistema:</strong> 14 días.</li>
+  <li><strong>Si el negocio deja el servicio:</strong> se le entregan sus datos en 15 días y se borran en 30. Si se da de baja por impago, se borran a los 45 días.</li>
+</ul>
+
+<h2>Si nos escribes desde esta web</h2>
+<p>Si escribes a <a href="mailto:elagenteinteligente@gmail.com">elagenteinteligente@gmail.com</a>, usamos tu nombre, tu correo y lo que nos cuentes solo para contestarte y, si te interesa, preparar una demostración. Lo guardamos mientras dure la conversación y, si llegas a ser cliente, mientras dure el contrato.</p>
+
+<h2>Tus derechos</h2>
+<p>Puedes pedir el acceso, la rectificación, la supresión, la oposición, la limitación y la portabilidad de tus datos dirigiéndote al negocio donde reservaste la cita o escribiendo a <a href="mailto:elagenteinteligente@gmail.com">elagenteinteligente@gmail.com</a>. También puedes reclamar ante la Agencia Española de Protección de Datos (<a href="https://www.aepd.es" target="_blank" rel="noopener">www.aepd.es</a>).</p>
 </main>
-<footer>
-  <p>El Agente Inteligente · <a href="mailto:elagenteinteligente@gmail.com">elagenteinteligente@gmail.com</a></p>
-  <p><a href="index.html">Volver al inicio</a></p>
-</footer>
+<footer><div class="in">
+  <span>© 2026 El Agente Inteligente · <a href="mailto:elagenteinteligente@gmail.com" style="margin:0">elagenteinteligente@gmail.com</a></span>
+  <span><a href="aviso-legal.html">Aviso legal</a><a href="privacidad.html">Política de privacidad</a><a href="cookies.html">Política de cookies</a></span>
+</div></footer>
+<script src="cookies.js"></script>
 </body>
 </html>
